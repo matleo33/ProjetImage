@@ -13,4 +13,24 @@ public class CalculMath {
 		}
 		return Math.sqrt(sum);
 	}
+	
+	public static int PPV(ArrayList<Double> vect, ArrayList< ArrayList <Double> > tabVect, int except) {
+		
+		double distMin = Double.MAX_VALUE;
+		int indice = 0;
+		
+		for (int i = 0; i < tabVect.size(); ++i) {
+			if (except != i) {
+				
+				double diffVect = distEucli(vect, tabVect.get(i));
+				
+				if (distMin > diffVect) {
+					distMin = diffVect;
+					indice = i;
+				}
+			}
+		}
+		
+		return indice;
+	}
 }
