@@ -26,11 +26,33 @@ public class OCRImage {
 		vect = new ArrayList<Double>();
 	}
 	
-	public void resize(ImagePlus img, int larg, int haut) {
-		ImageProcessor ip2 = img.getProcessor();
-		ip2.setInterpolate(true) ;
-		ip2 = ip2.resize(larg, haut) ;
-		getImg().setProcessor(null, ip2);
+	public double averageNdG() {
+		ImageProcessor ip = img.getProcessor();
+		byte[] pixels = (byte[]) ip.getPixels();
+		
+		int height = ip.getHeight();
+		int width = ip.getWidth();
+		
+		double sum = 0;
+		
+		for (int i=0; i < height; i++) {
+			for (int j=0; j < width; j++) {
+				sum += pixels[(i * width) + j] & 0xff;
+			}
+		}
+		
+		return sum/(width * height);
+	}
+	
+	public void setFeatureNdG() {
+		vect.add(averageNdG());
+	}
+	
+	public void resize(ImagePlus img, int width, int height) {
+		ImageProcessor ip = img.getProcessor();
+		ip.setInterpolate(true) ;
+		ip = ip.resize(width, height) ;
+		getImg().setProcessor(null, ip);
 	}
 
 	public char getLabel() {

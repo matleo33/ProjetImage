@@ -11,8 +11,11 @@ import ij.process.*;
 
 public class OCREngine {
 	
-	private ArrayList<OCRImage> listeImg;
+	private ArrayList<OCRImage> listImg;
 	
+	OCREngine() {
+		listImg = new ArrayList<OCRImage>();
+	}
 	
 	public void createListImage(String path, ArrayList<OCRImage> listeImg) {
 		File[] files = listFiles(path);
@@ -41,34 +44,22 @@ public class OCREngine {
 	
 	public void logOCR(String pathOut)
     {
-        int[][] matriceDeConfusion=new int[12][12];
+        int[][] matriceDeConfusion=new int[10][10];
         int ligne;
         int colonne;
-        for(int i=0;i<12;i++)
+        for(int i=0;i<10;i++)
         {
-            for(int j=0;j<12;j++)
+            for(int j=0;j<10;j++)
             {
                 matriceDeConfusion[i][j]=0;
             }
         }
 
-        for(int i=0;i<12;i++)
+        for(int i=0;i<10;i++)
         {
             for(int j=0;j<10;j++)
             {
-                if (listeImg.get(i*10+j).getLabel() == '+')
-                    ligne=10;
-                else if (listeImg.get(i*10+j).getLabel() == '-')
-                    ligne=11;
-                else
-                    ligne = Character.getNumericValue(listeImg.get(i*10+j).getLabel());
-                if (listeImg.get(i*10+j).getDecision() == '+')
-                    colonne=10;
-                else if (listeImg.get(i*10+j).getDecision() == '-')
-                    colonne=11;
-                else
-                    colonne = Character.getNumericValue(listeImg.get(i*10+j).getDecision());
-                matriceDeConfusion[ligne][colonne]++;
+            	matriceDeConfusion[Integer.parseInt(String.valueOf(listImg.get(i*10+j).getLabel()))][Integer.parseInt(String.valueOf(listImg.get(i*10+j).getDecision()))]++;
             }
         }
         try{
@@ -76,28 +67,26 @@ public class OCREngine {
             file.createNewFile();
             FileWriter fileWriter=new FileWriter(file);
             String tmpStr;
-            fileWriter.write("Test OCR effectué le " + new Date().toString());
+            fileWriter.write("Test OCR effectué le " + new Date().toString() + "\r\n");
+            
             for(int i=0;i<10;i++){
                 fileWriter.write(Integer.toString(i) + " ");
             }
-            //fileWriter.write("+ -");
-            fileWriter.write("\n");
-            for(int i=0;i<12;i++)
+            
+            fileWriter.write("\r\n********************\r\n");
+            for(int i=0;i<10;i++)
             {
-                if (i==10)
-                    fileWriter.write("+ ");
-                else if (i==11)
-                    fileWriter.write("- ");
-                else
-                    fileWriter.write(Integer.toString(i)+" ");
-                for(int j=0;j<12;j++)
+                for(int j=0;j<10;j++)
                 {
                     tmpStr=Integer.toString(matriceDeConfusion[i][j]);
                     fileWriter.write(tmpStr);
                     fileWriter.write(" ");
                 }
-                fileWriter.write("\n");
+                fileWriter.write("\r\n");
             }
+            
+            fileWriter.write("\r\n");
+            
             String plusieurs;
             if(getPerCent(matriceDeConfusion)*100.0 > 2)
                 plusieurs = " pourcents de réussite.";
@@ -106,26 +95,26 @@ public class OCREngine {
             fileWriter.write(Double.toString(getPerCent(matriceDeConfusion)*100.0)+ plusieurs);
             fileWriter.close();
         } catch (Exception e) {
-
+        	e.printStackTrace();
         }
     }
 
     public double getPerCent(int[][] matrice){
         double sum=0.0;
-        for (int i=0;i<12;i++){
+        for (int i=0; i<10; i++){
             sum+=(double)matrice[i][i];
         }
         return(sum/120.0);
     }
 
     public void resizeAll(){
-        for(OCRImage ocr : this.listeImg){
+        for(OCRImage ocr : this.listImg){
             ocr.resize(ocr.getImg(), 20, 20);
         }
     }
 
 
 	public ArrayList<OCRImage> getListeImg() {
-		return listeImg;
+		return listImg;
 	}
 }

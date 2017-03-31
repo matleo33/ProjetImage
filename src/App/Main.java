@@ -22,8 +22,8 @@ public class Main {
 		System.out.println(CalculMath.PPV(tab0, myList, -1));*/
 		
 		OCREngine ocrEngine = new OCREngine();
-		ocrEngine.createListImage("../../../data-tp3/", ocrEngine.getListeImg());
+		ocrEngine.createListImage("C:\\Program Files\\ImageJ\\ImageJ\\plugins\\baseProjetOCR/", ocrEngine.getListeImg());
 		
-		ocrEngine.logOCR("../../../MatriceConfusion");
+		ocrEngine.logOCR("C:\\Program Files\\ImageJ\\ImageJ\\plugins\\OCR_Project\\MatriceDeConfusion.txt");
 	}
 }
