@@ -3,6 +3,7 @@ package aimage;
 import java.util.ArrayList;
 
 import ij.*;
+import ij.process.ImageProcessor;
 
 public class OCRImage {
 	private ImagePlus img;
@@ -16,9 +17,31 @@ public class OCRImage {
 		this.img = img;
 		this.label = label;
 		this.path = path;
-		this.decision = '?';
+		
+		int val = (int) (Math.random()*10.0);
+		String i = Integer.toString(val);
+		char a = i.charAt(0);
+		this.decision = a;
+		
 		vect = new ArrayList<Double>();
 	}
+	
+	public void resize(ImagePlus img, int larg, int haut) {
+		ImageProcessor ip2 = img.getProcessor();
+		ip2.setInterpolate(true) ;
+		ip2 = ip2.resize(larg, haut) ;
+		getImg().setProcessor(null, ip2);
+	}
+
+	public char getLabel() {
+		return label;
+	}
+
+
+	public char getDecision() {
+		return decision;
+	}
+
 
 	public ImagePlus getImg() {
 		return img;
