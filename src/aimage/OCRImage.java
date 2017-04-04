@@ -93,6 +93,7 @@ public class OCRImage {
 				rowPixel.add(pixels[(row * imageProcessor.getWidth()) + col] & 0xff);
 			}
 
+            // De se qu'on a compris on n'ajoute que la moyenne de NdG dans la matrice
 			profilH.add(averageNdG(rowPixel));
 			rowPixel.clear();
 		}
@@ -113,6 +114,7 @@ public class OCRImage {
 				colPixel.add(pixels[row + col] & 0xff);
 			}
 
+			// De se qu'on a compris on n'ajoute que la moyenne de NdG dans la matrice
 			profilV.add(averageNdG(colPixel));
 			colPixel.clear();
 		}
@@ -155,16 +157,16 @@ public class OCRImage {
 
 		boolean found = false;
 
-        if (row != 0 && (pixels[((row * width) + col) - height] & 0xff) > threshold) {
+        if (row != 0 && (pixels[((row * width) + col) - height] & 0xff) > threshold) { // On vérifie en haut
 			found = true;
 		}
-		else if (row != height - 1 && (pixels[((row * width) + col) + height] & 0xff) > threshold) {
+		else if (row != height - 1 && (pixels[((row * width) + col) + height] & 0xff) > threshold) { // On vérifie en bas
 			found = true;
 		}
-		else if (col != 0 && (pixels[((row * width) + col) - 1] & 0xff) > threshold) {
+		else if (col != 0 && (pixels[((row * width) + col) - 1] & 0xff) > threshold) { // On vérifie à gauche
 			found = true;
 		}
-		else if (col != height - 1 && (pixels[((row * width) + col) + 1] & 0xff) > threshold) {
+		else if (col != height - 1 && (pixels[((row * width) + col) + 1] & 0xff) > threshold) { // On vérifie à droite
 			found = true;
 		}
 
