@@ -17,7 +17,7 @@ public class CalculMath {
 	public static int PPV(ArrayList<Double> vect, ArrayList< ArrayList <Double> > tabVect, int except) {
 		
 		double distMin = Double.MAX_VALUE;
-		int indice = 0;
+		int indice = except;
 		
 		for (int i = 0; i < tabVect.size(); ++i) {
 			if (except != i) {

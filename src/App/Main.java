@@ -3,7 +3,7 @@ package App;
 public class Main {
 	
 	public static void main(String [] args) {
-		/* FONCTIONNE
+		/* PPV FONCTIONNEL
 		ArrayList < Double > tab0 = new ArrayList< Double >(); 
 		tab0.add(new Double (1.0)) ; 
 		tab0.add(new Double (1.0));
@@ -22,8 +22,20 @@ public class Main {
 		System.out.println(CalculMath.PPV(tab0, myList, -1));*/
 		
 		OCREngine ocrEngine = new OCREngine();
-		ocrEngine.createListImage("C:\\Program Files\\ImageJ\\ImageJ\\plugins\\baseProjetOCR/", ocrEngine.getListeImg());
-		
-		ocrEngine.logOCR("C:\\Program Files\\ImageJ\\ImageJ\\plugins\\OCR_Project\\MatriceDeConfusion.txt");
+		ocrEngine.createListImage("ressources/", ocrEngine.getListeImg());
+
+		// Comparaison par nuance de gris
+		//ocrEngine.compareNdG();
+
+		// Comparaison par profil horizontal et vertical
+		//ocrEngine.compareProfilHV();
+
+		// Comparaison par rapport isopérimétrique
+		//ocrEngine.compareRapportIso();
+
+		// Comparaison par zoning
+		ocrEngine.compareZoning();
+
+		ocrEngine.logOCR("MatriceDeConfusion.txt");
 	}
 }

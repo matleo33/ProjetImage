@@ -16,37 +16,39 @@ public class OCREngine {
 	OCREngine() {
 		listImg = new ArrayList<OCRImage>();
 	}
-	
-	public void createListImage(String path, ArrayList<OCRImage> listeImg) {
+
+
+
+	void createListImage(String path, ArrayList<OCRImage> listeImg) {
 		File[] files = listFiles(path);
 		
 		if (files != null) {
 			if (files.length != 0) {
-				for (int i=0; i < files.length; i++) {
-					ImagePlus tempImg = new ImagePlus(files[i].getAbsolutePath());
-					new ImageConverter(tempImg).convertToGray8();
-					listeImg.add(new OCRImage(tempImg, files[i].getName().substring(0,1).charAt(0),
-							files[i].getAbsolutePath()));
-				}
+                for (File file : files) {
+                    ImagePlus tempImg = new ImagePlus(file.getAbsolutePath());
+                    new ImageConverter(tempImg).convertToGray8();
+                    listeImg.add(new OCRImage(tempImg, file.getName().substring(0, 1).charAt(0),
+                            file.getAbsolutePath()));
+                }
+
+                resizeAll();
 			}
 		}
 		else {
-			System.out.println("Aucun dossier image trouvé");
+			System.out.println("Aucun dossier image trouvÃ©");
 		}
 	}
 	
-	public File[] listFiles(String directoryPath) {
+	private File[] listFiles(String directoryPath) {
 		File[] files = null;
 		File directoryToScan = new File(directoryPath);
 		files = directoryToScan.listFiles();
 		return files;
 	}
 	
-	public void logOCR(String pathOut)
+	void logOCR(String pathOut)
     {
         int[][] matriceDeConfusion=new int[10][10];
-        int ligne;
-        int colonne;
         for(int i=0;i<10;i++)
         {
             for(int j=0;j<10;j++)
@@ -59,26 +61,35 @@ public class OCREngine {
         {
             for(int j=0;j<10;j++)
             {
-            	matriceDeConfusion[Integer.parseInt(String.valueOf(listImg.get(i*10+j).getLabel()))][Integer.parseInt(String.valueOf(listImg.get(i*10+j).getDecision()))]++;
+                if (Integer.parseInt(String.valueOf(listImg.get(i*10+j).getDecision())) != -1)
+            	    matriceDeConfusion[Integer.parseInt(String.valueOf(listImg.get(i*10+j).getLabel()))][Integer.parseInt(String.valueOf(listImg.get(i*10+j).getDecision()))]++;
             }
         }
         try{
             File file = new File(pathOut);
-            file.createNewFile();
             FileWriter fileWriter=new FileWriter(file);
             String tmpStr;
-            fileWriter.write("Test OCR effectué le " + new Date().toString() + "\r\n");
+            fileWriter.write("Test OCR effectuÃ© le " + new Date().toString() + "\r\n");
             
             for(int i=0;i<10;i++){
+                if (i == 0) {
+                    fileWriter.write("    ");
+                }
                 fileWriter.write(Integer.toString(i) + " ");
             }
             
-            fileWriter.write("\r\n********************\r\n");
+            fileWriter.write("\r\n    ********************\r\n");
             for(int i=0;i<10;i++)
             {
                 for(int j=0;j<10;j++)
                 {
-                    tmpStr=Integer.toString(matriceDeConfusion[i][j]);
+                    if (j == 0) {
+                        tmpStr = i + " * " + Integer.toString(matriceDeConfusion[i][j]);
+                    }
+                    else {
+                        tmpStr = Integer.toString(matriceDeConfusion[i][j]);
+                    }
+
                     fileWriter.write(tmpStr);
                     fileWriter.write(" ");
                 }
@@ -89,9 +100,9 @@ public class OCREngine {
             
             String plusieurs;
             if(getPerCent(matriceDeConfusion)*100.0 > 2)
-                plusieurs = " pourcents de réussite.";
+                plusieurs = " pourcents de rÃ©ussite.";
             else
-                plusieurs = " pourcent de réussite.";
+                plusieurs = " pourcent de rÃ©ussite.";
             fileWriter.write(Double.toString(getPerCent(matriceDeConfusion)*100.0)+ plusieurs);
             fileWriter.close();
         } catch (Exception e) {
@@ -99,22 +110,106 @@ public class OCREngine {
         }
     }
 
-    public double getPerCent(int[][] matrice){
+    private double getPerCent(int[][] matrice){
         double sum=0.0;
         for (int i=0; i<10; i++){
             sum+=(double)matrice[i][i];
         }
-        return(sum/120.0);
+        return sum/100.0;
     }
 
-    public void resizeAll(){
+    private void resizeAll(){
         for(OCRImage ocr : this.listImg){
-            ocr.resize(ocr.getImg(), 20, 20);
+            ocr.resize(ocr.getImg());
         }
     }
 
+    private void setFeatureNdgVect() {
+        for (OCRImage ocrImage : listImg) {
+            ocrImage.setFeatureNdG();
+        }
+    }
 
-	public ArrayList<OCRImage> getListeImg() {
+    void compareNdG() {
+
+        setFeatureNdgVect();
+
+        ArrayList< ArrayList< Double > > vectCarac = new ArrayList< ArrayList < Double >  >();
+
+        for (OCRImage aListImg : listImg) {
+            vectCarac.add(aListImg.getVect());
+        }
+
+        int count = 0;
+        for (OCRImage ocrImage : listImg) {
+            int indice = CalculMath.PPV(ocrImage.getVect(), vectCarac, count);
+            ocrImage.setDecision(listImg.get(indice).getLabel());
+
+            count++;
+        }
+    }
+
+    void compareProfilHV() {
+        for (OCRImage image : listImg) {
+            image.setFeatureProfilHV();
+        }
+
+        ArrayList< ArrayList< Double > > vectCarac = new ArrayList< ArrayList < Double >  >();
+
+        for (OCRImage aListImg : listImg) {
+            vectCarac.add(aListImg.getProfilHV());
+        }
+
+        int count = 0;
+        for (OCRImage ocrImage : listImg) {
+            int indice = CalculMath.PPV(ocrImage.getProfilHV(), vectCarac, count);
+            ocrImage.setDecision(listImg.get(indice).getLabel());
+
+            count++;
+        }
+    }
+
+    void compareRapportIso() {
+        for (OCRImage image : listImg) {
+            image.setRapportIso();
+        }
+
+        ArrayList< ArrayList< Double > > vectCarac = new ArrayList< ArrayList < Double >  >();
+
+        for (OCRImage aListImg : listImg) {
+            vectCarac.add(aListImg.getVectRapportIso());
+        }
+
+        int count = 0;
+        for (OCRImage ocrImage : listImg) {
+
+            int indice = CalculMath.PPV(ocrImage.getVectRapportIso(), vectCarac, count);
+            ocrImage.setDecision(listImg.get(indice).getLabel());
+            count++;
+        }
+    }
+
+    void compareZoning() {
+        for (OCRImage image : listImg) {
+            image.setZoning();
+        }
+
+        ArrayList< ArrayList< Double > > vectCarac = new ArrayList< ArrayList < Double >  >();
+
+        for (OCRImage aListImg : listImg) {
+            vectCarac.add(aListImg.getVectZoning());
+        }
+
+        int count = 0;
+        for (OCRImage ocrImage : listImg) {
+
+            int indice = CalculMath.PPV(ocrImage.getVectZoning(), vectCarac, count);
+            ocrImage.setDecision(listImg.get(indice).getLabel());
+            count++;
+        }
+    }
+
+	ArrayList<OCRImage> getListeImg() {
 		return listImg;
 	}
 }
